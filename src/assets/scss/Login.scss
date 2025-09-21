@@ -1,0 +1,193 @@
+@import "./variable.scss";
+
+  
+  .login-container {
+
+
+margin-top: 10%;
+ justify-self: center;
+    background-color: white;
+    align-content: center;
+    align-items: center;
+   position: relative;
+    padding: 2rem;
+    box-shadow: 0 0 30px rgba(25, 17, 17, 0.1);
+    border-radius: 30px;
+    height: 70vh;
+    border: #ccc;
+    border-width: 10px;
+    border-color: #ccc;
+
+    width: 400px;
+  }
+
+
+
+
+.prompt {
+    position: relative;
+    left: 10px;
+    top:10px;
+    transition: all 0.3s ease;
+    color: #999;
+}
+
+
+
+  .login-container input
+  {
+    width: 100%;
+  margin-bottom: 30px;
+    padding: 10px;
+    
+    border: 2px solid #ccc;
+    border-radius: 8px;
+  }
+  .login-container label
+  {
+    width: 100%;
+  margin-bottom: 30px;
+    padding: 10px;
+    text-align: center;
+    font-size: 1.2rem;
+     font-weight: bold;
+  }
+  h1 {
+    text-align: center;
+    color: #333;
+  }
+  
+
+  .login-container input:focus
+  {
+    width: 100%;
+  margin-bottom: 30px;
+    padding: 10px;
+    border: 2px solid #512222;
+    border-radius: 8px;
+    
+  }
+  
+  .login-container input:placeholder-shown
+{
+  left: 50px;
+  background-color: #ea8d24;
+
+}
+.line
+{
+  background: linear-gradient(to right, #bdc6e5,#2e59e5 ); 
+  width: 100%;
+  height: 2px;
+  margin-top: 30px;
+
+}
+.co
+{
+  color:gray;
+  width: 100%;
+  text-align: center;
+  font-size: 0.8rem;
+  margin-top: 30px;
+
+}
+  .loginbutton {
+    width: 100%;
+    padding: 0.5rem;
+    background: linear-gradient(to right, #bdc6e5,#2e59e5 ); 
+    color: white;
+    border: none;
+    padding-top: 10px ;
+    padding-bottom: 10px;
+    text-align: center;
+    text-shadow: #172f80;
+    align-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 30px rgba(25, 17, 17, 0.1);
+    border-radius: 20px;
+  }
+
+  login-container button:hover {
+    background-color: #0056b3;
+    color: black;
+  }
+  .showpassbutton
+{
+  position: absolute;
+  left: 10px;
+  top: 50%;
+  transform: translateY(-100%);
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+}
+  .error {
+    margin-top: 1rem;
+    color: red;
+    text-align: center;
+  }
+
+  @keyframes translateIn {
+    from {
+      transform: translateY(-50px); /* Start from below */
+      opacity: 0; /* Start invisible */
+    }
+    to {
+      transform: translateY(0); /* Move to original position */
+      opacity: 1; /* End visible */
+    }
+  }
+  .unreadmessage-div
+{
+  
+  background: linear-gradient(to right, #bdc6e5,white ); 
+ position: relative;
+  padding: 0.5rem;
+  box-shadow: 0 0 30px rgba(25, 17, 17, 0.1);
+  border-radius: 10px;
+  border: 2px solid #e0e0e0;
+  animation:  translateIn 0.5s forwards;  
+  width: 30rem;
+}
+
+.custom-cell {
+  font-size: 14px;          /* Change cell font size */
+  color: #161515;              /* Custom cell text color */
+  padding: 3px;            /* Add some padding */
+  text-align-last: center;
+  direction: rtl;
+  height: 10px;
+  direction: rtl;
+}
+.custom-input {
+  border-radius: 5px;
+  border: 1px var(--input-border-color) solid;
+  margin-bottom: 10px;
+  padding: 4px 12px;
+  background-color: white;
+  height: 32px;
+  box-shadow: 0 0 2px #0074d9;
+}
+
+.custom-input:focus {
+  outline: none;
+  border: 1px solid var(--input-border-color);
+  box-shadow: 0 0 10px 2px #0074d9;
+}
+.custom-input2 {
+  border-radius: 5px;
+  border: 1px var(--input-border-color) solid;
+  margin-bottom: 10px;
+  font-size: 14px;
+  padding: 10px;
+  background-color: white;
+
+  box-shadow: 0 0 2px var(--input-border-color);
+}
+
+.custom-input2:focus {
+  outline: none;
+  
+  border: 1px solid var(--input-border-color);
+  box-shadow: 0 0 2px 2px var(--input-border-color);
+}
