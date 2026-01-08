@@ -1,5 +1,5 @@
 <h1 align="center">
-  <a href="https://demo.reactadmin.com/bootstrap/adminx/" title="AdminX">AdminX Dashboard Bootstrap version</a>
+  <a href="https://demo.reactadmin.com/bootstrap/adminx/" title="AdminX">Assest Managemnet System</a>
 </h1>
 
 ![AdminX dashboard template preview](https://pixarlabs-bucket.s3.us-west-1.amazonaws.com/wp-content/uploads/2024/04/06131550/Admin-X-Template.png)
