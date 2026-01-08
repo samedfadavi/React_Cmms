@@ -139,7 +139,7 @@ const routes = [
     },
     {
         path: "/charts/chartjs",
-        component: Chartjs,
+        component: Modeler,
     },
     {
         path: "/charts/recharts",

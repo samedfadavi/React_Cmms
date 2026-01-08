@@ -102,7 +102,7 @@ const Layouts = () => {
                     >
                         <MenuItem routeLink="/charts/chartjs">
                             <i className="fa fa-line-chart" />
-                            <span>Chart Js</span>
+                            <span>مدیریت فرایندها</span>
                         </MenuItem>
                         <MenuItem routeLink="/charts/recharts">
                             <i className="fa fa-line-chart" />

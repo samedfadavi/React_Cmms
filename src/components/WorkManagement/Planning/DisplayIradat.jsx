@@ -2,7 +2,7 @@ import React, { useEffect, useState,useRef } from 'react';
 import axios from 'axios';
 import Box from '@mui/material/Box';
 import Checkbox  from '@mui/material/Checkbox';
-import { DataGrid , GridColumnMenu ,useGridApiContext } from '@mui/x-data-grid';
+import { DataGridPro , GridColumnMenu ,useGridApiContext } from '@mui/x-data-grid-pro';
 import MenuItem from '@mui/material/MenuItem';
 import config from '@/config'; // Adjust the path as necessary
 import SabteMoshtari from '@/components/Moshtari/SabteMoshtari';
@@ -68,6 +68,8 @@ const DisplayIradat = ({ nodesData, checkedNodes,getSelectedRows }) => {
   const [selectedTajhiz,setSelectedTajhiz]=useState([]);
   const [openprogress, setOpenprogress] = useState(false);
   const [rows, setRows] = useState([]);
+  const [childData, setChildData] = useState({});
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -210,14 +212,14 @@ const [selectedRows, setSelectedRows] = useState([]);
        
         setOpenprogress(false);
       });;
-    // Create an object to send back to the parent with form data
-   
-
-     // Call the parent function with form data
-
-
 };
-
+const fetchChildren = async (parentId) => {
+  if (!childData[parentId]) {
+    const res = await fetch(`/api/children?parentId=${parentId}`);
+    const data = await res.json();
+    setChildData((prev) => ({ ...prev, [parentId]: data }));
+  }
+};
   const handleClose = () => {
     
     setOpen(false); // Close the dialog
@@ -300,6 +302,10 @@ const removeSelectedRows = () => {
   setRows((prevRows) => prevRows.filter(row => !selectedRows.includes(row)));
   setSelectedRows([]); // Clear the selected rows after removal
 };
+const childColumns = [
+  { field: "id", headerName: "Child ID", width: 100 },
+  { field: "title", headerName: "Title", flex: 1 },
+];
     const columns = [
         {
         field: 'checkbox',
@@ -454,7 +460,11 @@ const removeSelectedRows = () => {
 
     </Stack>
    
-            <DataGrid        showToolbar sx={{...commongridstyle ,height:'95%',dir:'ltr'} }  rowHeight={35}   rows={rows}  style={{ textAlign:'center'} }   initialState={{
+            <DataGridPro         showToolbar sx={{...commongridstyle ,height:'95%',   '& .MuiDataGrid-toolbarContainer': {
+      alignContent:'flex-start',
+       backgroundColor:'red',
+       justifyContent: 'flex-end', // moves toolbar to right side
+     },} }  rowHeight={35}   rows={rows}  style={{ textAlign:'center'} }   initialState={{
    
    columns: {
       columnVisibilityModel: {
@@ -465,7 +475,24 @@ const removeSelectedRows = () => {
     },
   }}
 
-
+  getDetailPanelContent={({ row }) => {
+    fetchChildren(row.id);
+    return (
+      <div style={{ padding: 16, width: "100%" }}>
+        {childData[row.id] ? (
+          <DataGridPro
+            rows={childData[row.pk_id]}
+            columns={childColumns}
+            hideFooter
+            density='compact'
+          />
+        ) : (
+          <span>Loading...</span>
+        )}
+      </div>
+    );
+  }}
+  getDetailPanelHeight={() => 250}
    
        getRowId={(row) => row.pk_id} columns={columns} pageSize={10} rowsPerPageOptions={[10]} />
   

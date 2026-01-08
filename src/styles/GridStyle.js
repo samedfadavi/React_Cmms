@@ -3,7 +3,7 @@ export const commongridstyle = {
   
     fontFamily: "var(--common-font)", // grid content
     
-  boxShadow: 8,
+    boxShadow: 8,
     border: 2,
     borderRadius:3,
     
@@ -18,6 +18,8 @@ export const commongridstyle = {
        
       },
       '& .MuiDataGrid-toolbarContainer': {
+        backgroundColor:'red',
+        alignContent:'flex-start',
         justifyContent: 'flex-end', // moves toolbar to right side
       },
   

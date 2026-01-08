@@ -9,7 +9,7 @@ import {
 import { CPasswordInput, CStepper } from '@coreui/react-pro'
 import MapComponent from '../../MapComponents/MapComponent';
 import Box from '@mui/material/Box';
-import SetFilters from './SetFilters';
+import SetFilters from './SetFilters.tsx';
 import DisplayIradat from './DisplayIradat';
 import SabteDarkhast from './SabteDarkhast';
 import Modeler from '../../Modeler/Modeler';
