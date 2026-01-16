@@ -13,7 +13,7 @@ const Modeler = () => {
       const text = await file.text();
       setXml(text);
     }} /> */}
-      <BpmnEditor bpmnUrl="/1.bpmn" />
+   <BpmnEditor></BpmnEditor>
       </div>
   );
 };
