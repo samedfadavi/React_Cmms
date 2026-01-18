@@ -4,7 +4,7 @@
 
 
 <p align="center">
-  ![Preview]<img src="https://github.com/samedfadavi/PmServiceNetCore/tree/master/asseets/images/dima1page.jpg" width="800" />
+  <img src="https://github.com/samedfadavi/PmServiceNetCore/blob/master/asseets/images/dima1page.jpg" width="800" />
 </p>
 <!--
 ## 🚀 Live Demo
