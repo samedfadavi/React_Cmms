@@ -34,6 +34,7 @@ import MapComponent from "./components/MapComponents/MapComponent";
 
 import Planning from "./components/WorkManagement/Planning/Planning2";
 import Modeler from "./components/Modeler/Modeler";
+import BpmList from "./components/BpmManagement/BpmList"
 const routes = [
     {
         path: "/",
@@ -139,11 +140,11 @@ const routes = [
     },
     {
         path: "/charts/chartjs",
-        component: Modeler,
+        component: BpmList,
     },
     {
         path: "/charts/recharts",
-        component: Recharts,
+        component: BpmList,
     },
     {
         path: "/maps/google-map",

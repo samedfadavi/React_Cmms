@@ -23,7 +23,7 @@ const Layouts = () => {
     useEffect(() => {
         const fetchData = async () => {
          
-            const response = axios.get(`${config.API_URL}/BPM/List_Farayand`)
+            const response = axios.get(`${config.API_URL}/farayand`)
             .then((response) => {
              setMenuData(response.data);  // Set data from response
       
@@ -83,7 +83,7 @@ const Layouts = () => {
                  <MenuItem  key={i} routeLink={`/components/shenasaei?id=${menu.FilePath}`} >
                  
                  <i className="fa fa-pencil-square" />
-                 <span> {menu.Onvan}</span>
+                 <span> {menu.onvan}</span>
              </MenuItem>
             ))}
                         {/* <MenuItem  routeLink="/forms/basic-form">

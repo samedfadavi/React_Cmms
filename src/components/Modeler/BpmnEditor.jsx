@@ -1,9 +1,14 @@
-import React, { useEffect, useRef } from "react";
+import React, { useEffect, useRef,useState } from "react";
 import BpmnModeler from "bpmn-js/lib/Modeler";
+import {
+  BpmnPropertiesPanelModule,
+  BpmnPropertiesProviderModule
+} from "bpmn-js-properties-panel";
 import Icon from '@mui/material/Icon';
 import "bpmn-js/dist/assets/diagram-js.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn.css";
 import "bpmn-js/dist/assets/bpmn-font/css/bpmn-embedded.css";
+import "@bpmn-io/properties-panel/dist/assets/properties-panel.css";
 import { CustomButton } from '@/CustomControls/CustomButton';
 import Stack from '@mui/material/Stack';
 import { CustomTooltip } from '@/CustomControls/CustomTooltip';
@@ -12,10 +17,18 @@ const BpmnEditor = () => {
   const canvasRef = useRef(null);
   const modelerRef = useRef(null);
   const fileInputRef = useRef(null);
-
+  const propertiesRef = useRef(null);
+  const [showPanel, setShowPanel] = useState(false);
   useEffect(() => {
     modelerRef.current = new BpmnModeler({
-      container: canvasRef.current
+      container: canvasRef.current,
+      propertiesPanel: {
+        parent: propertiesRef.current
+      },
+      additionalModules: [
+        BpmnPropertiesPanelModule,
+        BpmnPropertiesProviderModule
+      ]
     });
 
     // Create initial empty diagram
@@ -55,7 +68,9 @@ const BpmnEditor = () => {
     // allow opening same file again
     event.target.value = "";
   };
-
+  const togglePanel = () => {
+    setShowPanel((v) => !v);
+  };
   return (
     <>
       {/* Toolbar */}
@@ -74,7 +89,14 @@ const BpmnEditor = () => {
             </CustomButton>
           
       </CustomTooltip> 
-
+      <CustomTooltip onClick={togglePanel} placement="top-end" title="نمایش/عدم نمایش  پنجره خصوصیات"    >  
+          <CustomButton >
+          
+                <Icon  className="fa-solid fa-window-maximize"></Icon>
+            </CustomButton>
+          
+      </CustomTooltip> 
+   
       </Stack>
 
       {/* Hidden file input */}
@@ -87,14 +109,42 @@ const BpmnEditor = () => {
       />
 
       {/* BPMN Canvas */}
-      <div
-        ref={canvasRef}
+
+       {/* Editor Container */}
+       <div
         style={{
+          position: "relative",
           height: "600px",
-          width: "100%",
           border: "1px solid #ccc"
         }}
-      />
+      >
+        {/* BPMN Canvas */}
+        <div
+          ref={canvasRef}
+          style={{ width: "100%", height: "100%" }}
+        />
+
+        {/* Floating Properties Panel */}
+        <div
+          ref={propertiesRef}
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "320px",
+            height: "100%",
+            background: "#fff",
+            borderLeft: "1px solid #ddd",
+            boxShadow: "-4px 0 8px rgba(0,0,0,0.1)",
+            transition: "transform 0.2s ease",
+            transform: showPanel
+              ? "translateX(0)"
+              : "translateX(100%)"
+          }}
+        />
+
+ 
+      </div>
     </>
   );
 };
