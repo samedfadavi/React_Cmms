@@ -37,16 +37,12 @@ It focuses on clean architecture, scalability, and real-world usability.
 - Docker (if applicable)
 
 ## ✨ Features
-- Feature 1
-- Feature 2
-- Feature 3
 - Authentication 
 - RESTful API integration
 
 ## 📦 Installation
 
 ### Prerequisites
-- Node.js
 - .NET SDK
 - Database (SQL Server / MongoDB)
 <!--
