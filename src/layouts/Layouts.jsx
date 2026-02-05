@@ -106,7 +106,7 @@ const Layouts = () => {
                         </MenuItem>
                         <MenuItem routeLink="/charts/recharts">
                             <i className="fa fa-line-chart" />
-                            <span>Recharts</span>
+                            <span>طراحی مدل</span>
                         </MenuItem>
                     </SubMenu>
                     <SubMenu

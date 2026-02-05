@@ -144,7 +144,7 @@ const routes = [
     },
     {
         path: "/charts/recharts",
-        component: BpmList,
+        component: Modeler,
     },
     {
         path: "/maps/google-map",

@@ -34,6 +34,7 @@ export const commongridstyle = {
   
   "& .MuiDataGrid-columnHeader, .MuiDataGrid-columnHeadersInner": {
     height: "40px",
+    alignContent: "flex-center",
     backgroundColor: "var(--common-control-backcolor)", // inner headers
     color: "var(--common-control-color)",
   }

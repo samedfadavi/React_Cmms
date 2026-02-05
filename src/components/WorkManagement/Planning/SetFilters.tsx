@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect,useCallback } from 'react';
 import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import axios from 'axios';
@@ -92,7 +92,7 @@ const SetFilters = ({ checkedNodes, nodesData }: SetFiltersProps) => {
     fetchData();
   }, []);
 
-  const setfilternameTajhiz = async () => {
+  const setfilternameTajhiz =useCallback( async () => {
     const tajhiz = findNodeById(treeData, noeTajhiz, idKey);
     setSelectedtajhiz(tajhiz);
 
@@ -132,7 +132,7 @@ const SetFilters = ({ checkedNodes, nodesData }: SetFiltersProps) => {
     } finally {
       setOpenprogress(false);
     }
-  };
+  }, [treeData, noeTajhiz]);
 
   const setfilternoeIrad = () => {
     const tajhiz = findNodeById(treeData, noeTajhiz, idKey);

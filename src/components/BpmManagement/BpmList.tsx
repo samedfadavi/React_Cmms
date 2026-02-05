@@ -1,313 +1,148 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import axios from "axios";
-import {
-  Box,
-  Checkbox,
-  CircularProgress,
-  Grid,
-  Icon,
-  Snackbar,
-  Alert,
-  Stack,
-} from "@mui/material";
-import { DataGrid , GridColumnMenu ,useGridApiContext } from '@mui/x-data-grid';
-import MenuItem from "@mui/material/MenuItem";
-
-import config from "@/config";
-import SabteMoshtari from "@/components/Moshtari/SabteMoshtari";
-import Moshtari from "@/models/moshtari";
-import QuestionForm from "@/components/ConstForms/QuestionForm";
-import { commongridstyle } from "@/styles/GridStyle"
-import { findNodeById, findParentById } from "@/jeneralscripts";
-import CustomCircularProgress from "@/components/CustomCircularProgress";
+import { useState, useMemo, useCallback } from "react";
+import { Box, Checkbox, CircularProgress, Grid, Icon, Snackbar, Alert, Stack } from "@mui/material";
+import { DataGrid, GridColDef, GridRenderCellParams } from "@mui/x-data-grid";
+import { useBpmList } from "@/hooks/useBpmList";
+import { useBpmMutations } from "@/hooks/useBpmMutations";
+import { GridRow } from "@/services/bpm.service";
 import { CustomButton } from "@/CustomControls/CustomButton";
 import { CustomTooltip } from "@/CustomControls/CustomTooltip";
-
-import "@/assets/scss/variable.scss";
-import React from "react";
-
-/* =====================
-   Types
-===================== */
-
-interface TajhizNode {
-  ID: number;
-  Parent_tajhiz: number;
-  Bazdid: number;
-  Field_Rabet: string;
-  Code_Pm: string;
-  Name_Jadval_Pm: string;
-  Code_No_DerakhtTajhizat: number;
-  where: string;
-}
-
-interface GridRow {
-  pk_id: number;
-  name_tajhiz: string;
-  Tarikh: string;
-  onvane_irad: string;
-}
+import CustomCircularProgress from "@/components/CustomCircularProgress";
+import SabteMoshtari from "@/components/Moshtari/SabteMoshtari";
+import QuestionForm from "@/components/ConstForms/QuestionForm";
+import Moshtari from "@/models/moshtari";
+import { commongridstyle } from "@/styles/GridStyle";
 
 interface BpmListProps {
-  nodesData: TajhizNode[];
-  checkedNodes: number[];
   getSelectedRows: (rows: GridRow[]) => void;
 }
 
-/* =====================
-   Column Menu
-===================== */
-
-function CustomFilterItem(props: any) {
-  const { onClick, colDef } = props;
-  const apiRef = useGridApiContext();
-
-  const handleClick = useCallback(
-    (event: React.MouseEvent) => {
-      apiRef.current.showFilterPanel(colDef.field);
-      onClick(event);
-    },
-    [apiRef, colDef.field, onClick]
-  );
-
-  return <MenuItem onClick={handleClick}>فیلتر</MenuItem>;
-}
-
-function CustomColumnMenu(props: any) {
-  return (
-    <GridColumnMenu
-      {...props}
-      slots={{ columnMenuFilterItem: CustomFilterItem }}
-    />
-  );
-}
-
-/* =====================
-   Component
-===================== */
-
-const BpmList = ({ nodesData, checkedNodes, getSelectedRows }: BpmListProps) => {
-  const idKey = "ID";
-
-  const dialogRef = useRef<HTMLDivElement | null>(null);
-
-  const [rows, setRows] = useState<GridRow[]>([]);
+const BpmList: React.FC<BpmListProps> = ({ getSelectedRows }) => {
+  const [page, setPage] = useState(0);
+  const [pageSize, setPageSize] = useState(10);
   const [selectedRows, setSelectedRows] = useState<GridRow[]>([]);
-  const [selectedTajhiz, setSelectedTajhiz] = useState<TajhizNode[]>([]);
-  const [moshtariData, setMoshtariData] = useState<Moshtari>(new Moshtari());
-
   const [open, setOpen] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
-  const [openProgress, setOpenProgress] = useState(false);
-
-  const [submitted, setSubmitted] = useState(false);
-  const [errorText, setErrorText] = useState("");
+  const [moshtariData] = useState(new Moshtari());
   const [snackSuccess, setSnackSuccess] = useState(false);
   const [snackError, setSnackError] = useState(false);
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { data, isLoading, isFetching, isError, error, refetch } = useBpmList(page, pageSize);
+  const { addMutation, updateMutation, deleteMutation } = useBpmMutations();
 
-  /* =====================
-     Helpers
-  ===================== */
+  const rows = data?.rows ?? [];
+  const total = data?.total ?? 0;
 
-  const convertToPersianNumerals = (value?: string | number): string => {
-    if (value == null ) return "";
-    const map = ["۰", "۱", "۲", "۳", "۴", "۵", "۶", "۷", "۸", "۹"];
-    return value
-      .toString()
-      .split("")
-      .map((c) => (/\d/.test(c) ? map[Number(c)] : c)) // <-- only digits
-      .join("");
+  const convertToPersianNumerals = (value?: string | number) => {
+    if (value == null) return "";
+    const map = ["۰","۱","۲","۳","۴","۵","۶","۷","۸","۹"];
+    return value.toString().split("").map(c => /\d/.test(c) ? map[Number(c)] : c).join("");
   };
 
-  const setSearchExpression = (tajhiz: TajhizNode): string => {
-    let query = `where ${tajhiz.Field_Rabet} in (`;
-    let parentId = tajhiz[idKey];
-    let where = "";
-    let closing = "";
-
-    do {
-      parentId = findParentById(nodesData, String(parentId), 0, idKey);
-      const parent = findNodeById(nodesData, String(parentId), idKey);
-
-      where = parent.where;
-
-      if (
-        parent.Code_No_DerakhtTajhizat > 1 ||
-        parent.Name_Jadval_Pm === "tbl_Omoor"
-      ) {
-        query += `select ${parent.Code_Pm} from ${parent.Name_Jadval_Pm}`;
-        query += where ? ` ${where}` : ` where ${parent.Field_Rabet} in (`;
-        closing += ")";
-      }
-    } while (parentId > 0 && where === "");
-
-    return query + closing;
-  };
-
-  /* =====================
-     Actions
-  ===================== */
-  useEffect(() => {
-    const fetchData = async () => {
-      setOpenProgress(true);
-        const response = axios.get(`${config.API_URL}/farayand`)
-        .then((response) => {
-          setRows(response.data);  // Set data from response
-  
-      })
-      .catch((err) => {
-        console.error('Error fetching data:', err);
-      })
-      .finally(() => {
-        setOpenProgress(false);
-      });
-       
-    };
-
-    fetchData();
-  }, []); 
-  const searchAndDisplay = async (): Promise<void> => {
-  
-  };
-
-  const returnSelectedRows = (): void => {
+  const handleRefresh = useCallback(() => refetch(), [refetch]);
+  const handleReturnSelectedRows = useCallback(() => {
     getSelectedRows(selectedRows);
-    setRows((prev) => prev.filter((r) => !selectedRows.includes(r)));
     setSelectedRows([]);
-  };
+  }, [getSelectedRows, selectedRows]);
 
-  /* =====================
-     Columns
-  ===================== */
+  const handleDeleteRow = useCallback((id: number) => {
+    deleteMutation.mutate(id, {
+      onSuccess: () => setSnackSuccess(true),
+      onError: () => setSnackError(true)
+    });
+  }, [deleteMutation]);
 
-  const columns: GridColDef<GridRow>[] = useMemo(
-    () => [
-      {
-        field: "checkbox",
-        width: 70,
-        sortable: false,
-        renderHeader: () => (
-          <Checkbox
-            checked={rows.length > 0 && rows.length === selectedRows.length}
-            onChange={(e) =>
-              setSelectedRows(e.target.checked ? rows : [])
-            }
-          />
-        ),
-        renderCell: ({ row }) => (
-          <Checkbox
-            checked={selectedRows.some((r) => r.id === row.id)}
-            onChange={() =>
-              setSelectedRows((prev) =>
-                prev.some((r) => r.id === row.id)
-                  ? prev.filter((r) => r.id !== row.id)
-                  : [...prev, row]
-              )
-            }
-          />
-        ),
-      },
-      {
-        field: "onvan",
-        headerName: "عنوان",
-        width: 260,
-        renderCell: (p) => convertToPersianNumerals(p.value),
-      },
-      {
-        field: "nameSabtKonande",
-        headerName: "ثبت کننده",
-        width: 390,
-        renderCell: (p) => convertToPersianNumerals(p.value),
-      },
-      {
-        field: "tarikhSabt",
-        headerName: "تاریخ",
-        width: 160,
-        renderCell: (p) => convertToPersianNumerals(p.value),
-      },
-    ],
-    [rows, selectedRows]
-  );
+  const columns: GridColDef<GridRow>[] = useMemo(() => [
+    {
+      field: "checkbox",
+      width: 70,
+      sortable: false,
+      renderHeader: () => (
+        <Checkbox
+          checked={rows.length > 0 && rows.length === selectedRows.length}
+          onChange={e => setSelectedRows(e.target.checked ? rows : [])}
+        />
+      ),
+      renderCell: (params: GridRenderCellParams<any, GridRow>) => (
+        <Checkbox
+          checked={selectedRows.some(r => r.id === params.row.id)}
+          onChange={() =>
+            setSelectedRows(prev =>
+              prev.some(r => r.id === params.row.id)
+                ? prev.filter(r => r.id !== params.row.id)
+                : [...prev, params.row]
+            )
+          }
+        />
+      ),
+    },
+    {
+      field: "onvan",
+      headerName: "عنوان",
+      width: 260,
+      renderCell: params => convertToPersianNumerals(params.value),
+    },
+    {
+      field: "nameSabtKonande",
+      headerName: "ثبت کننده",
+      width: 390,
+      renderCell: params => convertToPersianNumerals(params.value),
+    },
+    {
+      field: "tarikhSabt",
+      headerName: "تاریخ",
+      width: 160,
+      renderCell: params => convertToPersianNumerals(params.value),
+    },
+    {
+      field: "actions",
+      headerName: "عملیات",
+      width: 100,
+      renderCell: params => (
+        <CustomButton onClick={() => handleDeleteRow(params.row.id)}>
+          <Icon className="fa-solid fa-trash" />
+        </CustomButton>
+      ),
+    }
+  ], [rows, selectedRows, handleDeleteRow]);
 
-  /* =====================
-     Effects
-  ===================== */
-
-  useEffect(() => {
-    setLoading(false);
-  }, [submitted]);
-
-  /* =====================
-     Render
-  ===================== */
-
-  if (loading) {
-    return (
-      <Grid container justifyContent="center" alignItems="center" height="100vh">
-        <CircularProgress />
-      </Grid>
-    );
-  }
-
-  if (error) return <div>Error: {error}</div>;
+  if (isLoading) return <Grid container justifyContent="center" alignItems="center" height="100vh"><CircularProgress /></Grid>;
+  if (isError) return <Alert severity="error">{error?.message}</Alert>;
 
   return (
     <Box sx={{ height: "65vh", width: "100%" }}>
       <Stack direction="row" spacing={2} mb={1}>
-        <CustomTooltip title="جستجو">
-          <CustomButton onClick={searchAndDisplay}>
-            <Icon className="fa-solid fa-rotate" />
-          </CustomButton>
+        <CustomTooltip title="بروزرسانی">
+          <CustomButton onClick={handleRefresh}><Icon className="fa-solid fa-rotate" /></CustomButton>
         </CustomTooltip>
-
         <CustomTooltip title="افزودن">
-          <CustomButton onClick={returnSelectedRows}>
-            <Icon className="fa-solid fa-check-double" />
-          </CustomButton>
+          <CustomButton onClick={handleReturnSelectedRows}><Icon className="fa-solid fa-check-double" /></CustomButton>
         </CustomTooltip>
       </Stack>
 
-      <DataGrid sx={{...commongridstyle ,height:'95%'} }  rowHeight={35}   rows={rows}  style={{fontFamily:'IRANSans', textAlign:'center'} }   initialState={{
-    columns: {
-      columnVisibilityModel: {
-        // Hide columns id  the other columns will remain visible
-        id: false,
-       
-      },
-    },
-  }}
-
-  
-       getRowId={(row) => row.id} columns={columns} pageSize={10} rowsPerPageOptions={[10]} />
-
-      <CustomCircularProgress open={openProgress} />
-
-      <SabteMoshtari
-        open={open}
-        moshtari={moshtariData}
-        onClose={() => setOpen(false)}
-        onSubmit={() => setSubmitted((s) => !s)}
+      <DataGrid
+        sx={{ ...commongridstyle, height: "95%" }}
+        rows={rows}
+        columns={columns}
+        rowHeight={35}
+        pageSizeOptions={[10,20,50]}
+        paginationMode="server"
+        rowCount={total}
+        page={page}
+        onPageChange={setPage}
+        onPageSizeChange={setPageSize}
+        getRowId={(row) => row.id}
+        disableRowSelectionOnClick
       />
 
-      <QuestionForm
-        open={openDelete}
-        onClose={() => setOpenDelete(false)}
-        onConfirm={() => {}}
-        message="اطلاعات مشتری حذف شود؟"
-      />
+      <CustomCircularProgress open={isFetching} />
 
-      <Snackbar open={snackSuccess} autoHideDuration={4000}>
-        <Alert severity="success">تغییرات با موفقیت انجام شد</Alert>
-      </Snackbar>
+      <SabteMoshtari open={open} moshtari={moshtariData} onClose={() => setOpen(false)} onSubmit={() => setSnackSuccess(true)} />
+      <QuestionForm open={openDelete} onClose={() => setOpenDelete(false)} onConfirm={() => {}} message="اطلاعات مشتری حذف شود؟" />
 
-      <Snackbar open={snackError} autoHideDuration={4000}>
-        <Alert severity="error">{errorText}</Alert>
-      </Snackbar>
+      <Snackbar open={snackSuccess} autoHideDuration={4000}><Alert severity="success">عملیات با موفقیت انجام شد</Alert></Snackbar>
+      <Snackbar open={snackError} autoHideDuration={4000}><Alert severity="error">خطا رخ داد</Alert></Snackbar>
     </Box>
   );
 };
 
-export default BpmList
+export default BpmList;
